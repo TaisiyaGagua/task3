@@ -1,0 +1,21 @@
+{
+  "name": "task3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/app.js",
+  "scripts": {
+    "start": "tsc && node dist/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.8.3",
+    "typescript": "^5.2.2"
+  },  
+  "dependencies": {
+    "cli-table": "^0.3.11",
+    "crypto-js": "^4.1.1"
+  }
+}
