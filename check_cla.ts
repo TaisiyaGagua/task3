@@ -3,25 +3,21 @@ type ClaCheckResult = {
     errorMessage: string | undefined;
 };
 
-function checkCLA(strings): ClaCheckResult {
-    if (strings.length === 0)
+function checkCLA(strings: string[]): ClaCheckResult {
+    const length = strings.length;
+
+    if (length === 0 || length < 3 || length % 2 === 0) {
         return {
             isCorrect: false,
             errorMessage:
-                "You have not entered game elements. Please enter 3 or more items. For example: rock paper scissors",
+                length === 0
+                    ? "You have not entered game elements. Please enter 3 or more items. For example: rock paper scissors"
+                    : length < 3
+                    ? "You entered less than 3 elements. Please enter 3 or more items. For example: 1 2 3 4 5"
+                    : "You entered an even number of elements. Please enter an odd number of elements. For example: A B C D G F E",
         };
-    if (strings.length < 3)
-        return {
-            isCorrect: false,
-            errorMessage:
-                "You entered less than 3 elements. Please enter 3 or more items. For example: 1 2 3 4 5",
-        };
-    if (strings.length % 2 === 0)
-        return {
-            isCorrect: false,
-            errorMessage:
-                "You entered an even number of elements. Please enter an odd number of elements. For example: A B C D G F E",
-        };
+    }
+
     return {
         isCorrect: true,
         errorMessage: undefined,

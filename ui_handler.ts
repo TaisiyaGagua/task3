@@ -7,7 +7,7 @@ const rl = readline.createInterface({
 });
 
 function displayMenu(
-    callback: (action: any, input?, elements?) => void,
+    callback: (action: Action, input?: string, elements?: string[]) => void,
     elements: string[]
 ): void {
     console.log("Available moves:");
@@ -20,16 +20,27 @@ function displayMenu(
     console.log("? - help");
 
     rl.question("Enter your move: ", (input) => {
-        if (input === "0") {
-            callback(Action.Exit);
-            rl.close();
-        } else if (input === "?") {
-            callback(Action.Help); // ТАБЛИЦА
-            displayMenu(callback, elements);
-        } else if (/^\d+$/.test(input)) {
-            callback(Action.Move, input, elements);
-        } else {
-            callback(Action.Error);
+        switch (input) {
+            case "0":
+                callback(Action.Exit);
+                rl.close();
+                break;
+            case "?":
+                callback(Action.Help);
+                displayMenu(callback, elements);
+                break;
+            default:
+                if (/^\d+$/.test(input)) {
+                    const selectedIndex = parseInt(input, 10) - 1;
+                    if (selectedIndex >= 0 && selectedIndex < elements.length) {
+                        callback(Action.Move, input, elements);
+                    } else {
+                        callback(Action.Error, input, elements);
+                    }
+                } else {
+                    callback(Action.Error);
+                }
+                break;
         }
     });
 }

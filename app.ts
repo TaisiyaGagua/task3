@@ -1,62 +1,87 @@
 import { getElements } from "./cla_processor";
 import { checkCLA } from "./check_cla";
 import { displayMenu } from "./ui_handler";
-import { computerMove } from "./comp";
+import { computerMove } from "./generate_pc_move";
 import { calculateGameResult } from "./game_rules";
 import { Action } from "./input_actions";
 import { showTable } from "./help_table";
 import { showHMAC } from "./hmac_generation";
 
-const checkResult = checkCLA(process.argv.slice(2));
-let gameElements: string[];
-if (checkResult.isCorrect === true) {
-    gameElements = getElements(process.argv.slice(2));
-} else {
-    console.log(checkResult.errorMessage);
-    checkResult;
+function startGame() {
+    const checkResult = checkCLA(process.argv.slice(2));
+
+    if (checkResult.isCorrect) {
+        const gameElements = getElements(process.argv.slice(2));
+        const compMove = computerMove(gameElements);
+        const key = showHMAC(compMove);
+
+        displayMenu((action, input, elements) => {
+            handleUserAction(
+                action,
+                input,
+                elements,
+                gameElements,
+                compMove,
+                key
+            );
+        }, gameElements);
+    } else {
+        console.log(checkResult.errorMessage);
+        process.exit();
+    }
 }
-let compMove = computerMove(gameElements);
 
-const key = showHMAC(compMove);
-displayMenu(callback, gameElements);
-
-function callback(action: Action, input?, elements?) {
+function handleUserAction(
+    action: Action,
+    input: string | undefined,
+    elements: string[] | undefined,
+    gameElements: string[],
+    compMove: string,
+    key: string
+) {
     switch (action) {
-        case Action.Exit: {
+        case Action.Exit:
             console.log("Goodbye!");
             break;
-        }
-        case Action.Help: {
+
+        case Action.Help:
             showTable(gameElements);
             break;
-        }
-        case Action.Move: {
-            const choiceIndex = parseInt(input) - 1;
 
-            if (choiceIndex >= 0 && choiceIndex < elements.length) {
+        case Action.Move:
+            const choiceIndex = parseInt(input || "0") - 1;
+
+            if (choiceIndex >= 0 && choiceIndex < (elements || []).length) {
                 const selectedElement = elements[choiceIndex];
                 console.log(`Your move: ${selectedElement}`);
-
                 console.log(`Computer move: ${compMove}`);
+
                 if (compMove === gameElements[choiceIndex]) {
                     console.log("Draw!");
-                    console.log(key);
-                    break;
                 } else {
                     console.log(
                         calculateGameResult(gameElements, choiceIndex, compMove)
                     );
-                    console.log(key);
                 }
-
-                break;
+                console.log(key);
             }
-        }
+            process.exit();
 
-        case Action.Error: {
+        case Action.Error:
             console.log("Invalid input. Please enter a valid move.");
-            displayMenu(callback, elements);
+            displayMenu((action, input, elements) => {
+                handleUserAction(
+                    action,
+                    input,
+                    elements,
+                    gameElements,
+                    compMove,
+                    key
+                );
+            }, gameElements);
+
             break;
-        }
     }
 }
+
+startGame();
